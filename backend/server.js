@@ -3,25 +3,17 @@ const cors = require('cors');
 require('dotenv').config();
 
 const connectDB = require('./config/database');
-// Importar rutas
-const authRoutes = require('./routes/auth');
-const productoRoutes = require('./routes/productos');
-const compraRoutes = require('./routes/compras');
 
 const app = express();
 
+// Conectar a la base de datos
 connectDB();
 
-// middlewares
+// Middlewares
 app.use(cors());
 app.use(express.json());
 
 // Rutas
-app.use('/api/auth', authRoutes);
-app.use('/api/productos', productoRoutes); 
-app.use('/api/compras', compraRoutes); 
-
-// ruta de prueba
 app.get('/', (req, res) => {
   res.json({ 
     message: '🚀 Backend funcionando!',
@@ -36,7 +28,13 @@ app.get('/health', (req, res) => {
   });
 });
 
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
+// Manejo de errores para producción
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ error: 'Algo salió mal!' });
+});
+
+const PORT = process.env.PORT || 10000;
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`🎯 Servidor corriendo en puerto ${PORT}`);
 });
