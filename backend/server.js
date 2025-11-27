@@ -6,7 +6,7 @@ const connectDB = require('./config/database');
 const authRoutes = require('./routes/auth');
 const productoRoutes = require('./routes/productos');
 const compraRoutes = require('./routes/compras');
-
+const pedidoRoutes = require('./routes/pedidos');
 
 const app = express();
 
@@ -20,6 +20,7 @@ app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/productos', productoRoutes);
 app.use('/api/compras', compraRoutes);
+app.use('/api/pedidos', pedidoRoutes);
 
 // Rutas
 app.get('/', (req, res) => {
