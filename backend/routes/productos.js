@@ -7,14 +7,15 @@ const {
   deleteProducto
 } = require('../controllers/productoController');
 const authMiddleware = require('../middlewares/auth');
+const adminMiddleware = require('../middlewares/admin'); // ← NUEVO
 
 const router = express.Router();
 
-// Todas las rutas protegidas con authMiddleware
 router.get('/', authMiddleware, getProductos);
 router.get('/:id', authMiddleware, getProductoById);
-router.post('/', authMiddleware, createProducto);
-router.put('/:id', authMiddleware, updateProducto);
-router.delete('/:id', authMiddleware, deleteProducto);
+
+router.post('/', authMiddleware, adminMiddleware, createProducto);       // ← PROTEGIDO
+router.put('/:id', authMiddleware, adminMiddleware, updateProducto);     // ← PROTEGIDO  
+router.delete('/:id', authMiddleware, adminMiddleware, deleteProducto);  // ← PROTEGIDO
 
 module.exports = router;

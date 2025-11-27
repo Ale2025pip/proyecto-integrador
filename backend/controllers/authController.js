@@ -22,7 +22,10 @@ const register = async (req, res) => {
     res.status(201).json({
       message: 'Usuario registrado exitosamente.',
       token,
-      user: { id: user._id, email: user.email, role: user.role }
+      user: { id: user._id, 
+        email: user.email,
+         role: user.role 
+        }
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
