@@ -3,6 +3,10 @@ const cors = require('cors');
 require('dotenv').config();
 
 const connectDB = require('./config/database');
+const authRoutes = require('./routes/auth');
+const productoRoutes = require('./routes/productos');
+const compraRoutes = require('./routes/compras');
+
 
 const app = express();
 
@@ -12,6 +16,10 @@ connectDB();
 // Middlewares
 app.use(cors());
 app.use(express.json());
+
+app.use('/api/auth', authRoutes);
+app.use('/api/productos', productoRoutes);
+app.use('/api/compras', compraRoutes);
 
 // Rutas
 app.get('/', (req, res) => {
