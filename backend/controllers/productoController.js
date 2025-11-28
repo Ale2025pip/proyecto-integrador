@@ -50,7 +50,7 @@ const createProducto = async (req, res) => {
       descripcion,
       precio,
       imagen,
-      categoría,
+      categoria,
       stock,
       usuario: req.user.id
     });
