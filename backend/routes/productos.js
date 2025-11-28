@@ -11,8 +11,8 @@ const adminMiddleware = require('../middlewares/admin'); // ← NUEVO
 
 const router = express.Router();
 
-router.get('/', authMiddleware, getProductos);
-router.get('/:id', authMiddleware, getProductoById);
+router.get('/', getProductos);
+router.get('/:id', getProductoById);
 
 router.post('/', authMiddleware, adminMiddleware, createProducto);       // ← PROTEGIDO
 router.put('/:id', authMiddleware, adminMiddleware, updateProducto);     // ← PROTEGIDO  
