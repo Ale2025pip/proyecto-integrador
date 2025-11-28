@@ -43,7 +43,7 @@ const getProductoById = async (req, res) => {
 
 const createProducto = async (req, res) => {
   try {
-    const { nombre, descripcion, precio } = req.body;
+    const { nombre, descripcion, precio, imagen, categoria, stock } = req.body;
 
     const producto = new Producto({
       nombre,
