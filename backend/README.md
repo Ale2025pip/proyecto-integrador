@@ -93,3 +93,11 @@ Validación de Datos
 🔗 Repositorios Relacionados
 [Frontend React](https://github.com/Ale2025pip/proyecto-integrador-frontend)
 [Demo en Vivo](https://code-store-psi.vercel.app/)
+
+Configuración
+Crear archivo `.env` con:
+```env
+MONGODB_URI=tu_connection_string_mongodb
+JWT_SECRET=tu_jwt_secret
+PORT=3000
+NODE_ENV=development
