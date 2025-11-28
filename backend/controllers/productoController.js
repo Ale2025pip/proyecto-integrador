@@ -49,6 +49,9 @@ const createProducto = async (req, res) => {
       nombre,
       descripcion,
       precio,
+      imagen,
+      categoría,
+      stock,
       usuario: req.user.id
     });
 
