@@ -1,17 +1,17 @@
-Backend CRUD - Práctico Integrador
+CodeStore - Backend CRUD - Práctico Integrador
 
 API RESTful desarrollada con Node.js, Express y MongoDB para el práctico integrador.
+ Permite realizar operaciones CRUD sobre productos y compras, con autenticación JWT, validación de datos y sistema de logging.
 
-## 🚀 Funcionalidades
+Funcionalidades
 
-- Autenticación JWT (Login/Registro)
-- CRUD completo de Productos
-- CRUD completo de Compras
-- Paginación en consultas
-- Validación de datos
-- Relaciones entre entidades
+Autenticación JWT - Login y registro de usuarios
+Módulo ABMC Completo - Alta, Baja, Modificación, Consulta de productos y compras
+Validación de Datos - Middlewares de validación para entradas
+Autorización por Roles - Middleware admin para rutas protegidas
+Sistema de Logging - Registro de errores y operaciones
 
-## 📦 Tecnologías
+Tecnologías
 
 - Node.js + Express
 - MongoDB + Mongoose
@@ -19,20 +19,77 @@ API RESTful desarrollada con Node.js, Express y MongoDB para el práctico integr
 - Bcryptjs para encriptación
 - CORS para frontend
 
-## 🛣️ Endpoints
+Estructura del Proyecto
 
-### Autenticación
-- POST `/api/auth/register` - Registro de usuario
-- POST `/api/auth/login` - Login de usuario
+backend/
+├── models/
+│ ├── Producto.js # Entidad principal
+│ ├── Compra.js # Entidad de soporte
+│ ├── Pedido.js # Entidad de soporte
+│ └── User.js # Modelo de usuario
+├── controllers/
+│ ├── authController.js
+│ ├── productoController.js
+│ └── compraController.js
+├── routes/
+│ ├── auth.js
+│ ├── productos.js
+│ └── compras.js
+├── middlewares/
+│ ├── auth.js # Autenticación JWT
+│ └── admin.js # Autorización por roles
+├── config/
+│ └── database.js
+└── server.js
 
-### Productos (Protegido)
-- GET `/api/productos` - Listar productos (con paginación)
-- GET `/api/productos/:id` - Obtener producto por ID
-- POST `/api/productos` - Crear producto
-- PUT `/api/productos/:id` - Actualizar producto
-- DELETE `/api/productos/:id` - Eliminar producto
+🔗 Entidades y Relaciones
 
-### Compras (Protegido)
-- GET `/api/compras` - Listar compras (con paginación)
-- GET `/api/compras/:id` - Obtener compra por ID
-- POST `/api/compras` - Crear compra
+Entidad Principal: Producto
+- `nombre` (String)
+- `descripcion` (String) 
+- `precio` (Number)
+- `categoria` (String)
+- `stock` (Number)
+- `imagen` (String)
+- `usuario` (Reference to User)
+
+Entidad de Soporte: Compra
+- `fechaCompra` (Date)
+- `direccion` (String)
+- `productos` (Array of Product references)
+- `cantidad` (Number)
+- `total` (Number)
+- `usuario` (Reference to User)
+
+Endpoints Principales
+
+Autenticación
+- `POST /api/auth/register` - Registro de usuarios
+- `POST /api/auth/login` - Login de usuarios
+
+Productos (CRUD Completo)
+- `GET /api/productos` - Listar todos los productos
+- `GET /api/productos/:id` - Obtener un producto
+- `POST /api/productos` - Crear producto (Admin only)
+- `PUT /api/productos/:id` - Actualizar producto (Admin only) 
+- `DELETE /api/productos/:id` - Eliminar producto (Admin only)
+
+Compras (CRUD Completo)
+- `GET /api/compras` - Listar compras
+- `POST /api/compras` - Crear nueva compra
+- `GET /api/compras/usuario/:userId` - Compras por usuario
+
+Autenticación y Autorización
+- Tokens JWT para autenticación
+- Middleware de verificación de token
+- Middleware de autorización por roles (admin/user)
+- Rutas protegidas para operaciones CRUD
+
+Validación de Datos
+- Validación de entradas en endpoints críticos
+- Sanitización de datos
+- Manejo centralizado de errores
+
+🔗 Repositorios Relacionados
+[Frontend React](https://github.com/Ale2025pip/proyecto-integrador-frontend)
+[Demo en Vivo](https://code-store-psi.vercel.app/)
