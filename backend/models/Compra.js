@@ -5,9 +5,28 @@ const compraSchema = new mongoose.Schema({
     type: Date,
     default: Date.now
   },
-  direccion: {
-    type: String,
-    required: true
+  // MEJORADO: Dirección estructurada (igual que en User)
+  direccionEnvio: {
+    calle: {
+      type: String,
+      required: true,
+      trim: true
+    },
+    ciudad: {
+      type: String,
+      required: true,
+      trim: true
+    },
+    codigoPostal: {
+      type: String,
+      required: true,
+      trim: true
+    },
+    pais: {
+      type: String,
+      default: 'Argentina',
+      trim: true
+    }
   },
   total: {
     type: Number,
@@ -35,9 +54,34 @@ const compraSchema = new mongoose.Schema({
       required: true,
       min: 0
     }
-  }]
+  }],
+  // NUEVOS CAMPOS
+  estado: {
+    type: String,
+    enum: ['pendiente', 'confirmado', 'enviado', 'entregado', 'cancelado'],
+    default: 'pendiente'
+  },
+  metodoPago: {
+    type: String,
+    enum: ['tarjeta', 'transferencia', 'efectivo'],
+    required: true
+  },
+  numeroPedido: {
+    type: String,
+    unique: true
+  }
 }, {
   timestamps: true
+});
+
+// Generar número de pedido automáticamente antes de guardar
+compraSchema.pre('save', async function(next) {
+  if (!this.numeroPedido) {
+    const timestamp = Date.now().toString().slice(-6);
+    const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+    this.numeroPedido = `PED-${timestamp}-${random}`;
+  }
+  next();
 });
 
 module.exports = mongoose.model('Compra', compraSchema);

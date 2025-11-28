@@ -1,5 +1,6 @@
 const Compra = require('../models/Compra');
 const Producto = require('../models/Producto');
+const User = require('../models/User');
 
 const getCompras = async (req, res) => {
   try {
@@ -8,8 +9,9 @@ const getCompras = async (req, res) => {
     const skip = (page - 1) * limit;
 
     const compras = await Compra.find({ usuario: req.user.id })
-      .populate('usuario', 'email')
-      .populate('productos.producto', 'nombre precio')
+      .populate('usuario', 'email nombre apellido')
+      .populate('productos.producto', 'nombre precio imagen')
+      .sort({ fechaCompra: -1 })
       .skip(skip)
       .limit(limit);
 
@@ -35,8 +37,8 @@ const getCompraById = async (req, res) => {
       _id: req.params.id, 
       usuario: req.user.id 
     })
-    .populate('usuario', 'email')
-    .populate('productos.producto', 'nombre descripcion precio');
+    .populate('usuario', 'email nombre apellido telefono')
+    .populate('productos.producto', 'nombre descripcion precio imagen');
 
     if (!compra) {
       return res.status(404).json({ error: 'Compra no encontrada' });
@@ -50,15 +52,31 @@ const getCompraById = async (req, res) => {
 
 const createCompra = async (req, res) => {
   try {
-    const { direccion, productos } = req.body;
+    const { 
+      direccionEnvio, 
+      productos, 
+      metodoPago,
+      actualizarPerfil // flag para saber si guardar datos en el perfil
+    } = req.body;
 
-    // Calcular total
+    // Validar método de pago
+    const metodosPagoValidos = ['tarjeta', 'transferencia', 'efectivo'];
+    if (!metodoPago || !metodosPagoValidos.includes(metodoPago)) {
+      return res.status(400).json({ 
+        error: 'Método de pago inválido. Opciones: tarjeta, transferencia, efectivo' 
+      });
+    }
+
+    // Calcular total y verificar productos
     let total = 0;
     const productosConPrecio = await Promise.all(
       productos.map(async (item) => {
         const producto = await Producto.findById(item.producto);
         if (!producto) {
           throw new Error(`Producto ${item.producto} no encontrado`);
+        }
+        if (producto.stock < item.cantidad) {
+          throw new Error(`Stock insuficiente para ${producto.nombre}`);
         }
         total += producto.precio * item.cantidad;
         return {
@@ -69,17 +87,47 @@ const createCompra = async (req, res) => {
       })
     );
 
+    // ACTUALIZAR PERFIL DEL USUARIO si se solicita
+    if (actualizarPerfil) {
+      await User.findByIdAndUpdate(req.user.id, {
+        nombre: req.body.nombre,
+        apellido: req.body.apellido,
+        telefono: req.body.telefono,
+        direccion: direccionEnvio,
+        metodoPagoPreferido: metodoPago
+      });
+    }
+
+    // CREAR LA COMPRA
     const compra = new Compra({
-      direccion,
+      direccionEnvio,
       total,
       usuario: req.user.id,
-      productos: productosConPrecio
+      productos: productosConPrecio,
+      metodoPago,
+      estado: 'pendiente'
     });
 
     await compra.save();
-    await compra.populate('productos.producto', 'nombre precio');
+    
+    // ACTUALIZAR STOCK de productos
+    for (const item of productos) {
+      await Producto.findByIdAndUpdate(
+        item.producto,
+        { $inc: { stock: -item.cantidad } }
+      );
+    }
 
-    res.status(201).json(compra);
+    // Populate para respuesta
+    await compra.populate('productos.producto', 'nombre precio');
+    await compra.populate('usuario', 'email nombre');
+
+    res.status(201).json({
+      message: 'Compra creada exitosamente',
+      compra: compra,
+      numeroPedido: compra.numeroPedido
+    });
+
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

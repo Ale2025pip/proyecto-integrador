@@ -22,10 +22,16 @@ const register = async (req, res) => {
     res.status(201).json({
       message: 'Usuario registrado exitosamente.',
       token,
-      user: { id: user._id, 
+      user: {
+        id: user._id,
         email: user.email,
-         role: user.role 
-        }
+        role: user.role,
+        nombre: user.nombre,           // 🆕 NUEVO
+        apellido: user.apellido,       // 🆕 NUEVO  
+        telefono: user.telefono,       // 🆕 NUEVO
+        direccion: user.direccion,     // 🆕 NUEVO
+        metodoPagoPreferido: user.metodoPagoPreferido // 🆕 NUEVO
+      }
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -51,11 +57,56 @@ const login = async (req, res) => {
     res.json({
       message: 'Login exitoso.',
       token,
-      user: { id: user._id, email: user.email, role: user.role }
+      user: {
+        id: user._id,
+        email: user.email,
+        role: user.role,
+        nombre: user.nombre,           // 🆕 NUEVO
+        apellido: user.apellido,       // 🆕 NUEVO  
+        telefono: user.telefono,       // 🆕 NUEVO
+        direccion: user.direccion,     // 🆕 NUEVO
+        metodoPagoPreferido: user.metodoPagoPreferido // 🆕 NUEVO
+      }
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
-module.exports = { register, login };
+const updateProfile = async (req, res) => {
+  try {
+    const { nombre, apellido, telefono, direccion, metodoPagoPreferido } = req.body;
+
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({ error: 'Usuario no encontrado' });
+    }
+
+    // Actualizar campos
+    if (nombre) user.nombre = nombre;
+    if (apellido) user.apellido = apellido;
+    if (telefono) user.telefono = telefono;
+    if (direccion) user.direccion = direccion;
+    if (metodoPagoPreferido) user.metodoPagoPreferido = metodoPagoPreferido;
+
+    await user.save();
+
+    res.json({
+      message: 'Perfil actualizado exitosamente',
+      user: {
+        id: user._id,
+        email: user.email,
+        nombre: user.nombre,
+        apellido: user.apellido,
+        telefono: user.telefono,
+        direccion: user.direccion,
+        metodoPagoPreferido: user.metodoPagoPreferido,
+        role: user.role
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+module.exports = { register, login, updateProfile };
